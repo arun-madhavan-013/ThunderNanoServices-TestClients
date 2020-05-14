@@ -1,2 +1,2 @@
 # ThunderNanoServices-TestClients
-CPP Test clients to verify the generated events
+CPP Test client to verify Thunder plugin generated events
