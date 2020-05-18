@@ -1,9 +1,14 @@
-# ThunderNanoServices-TestClients  
+## ThunderNanoServices-TestClient  
+
 CPP Test client to verify Thunder plugin generated events.  
+
 ---  
-## How to  
+
+### How to  
+
 Sample usage `./ThunderEventListner THUNDER_ACCESS <LocalIP:Port> <PluginCallSign>.<PluginVersion> <EventName>`  
 Sample usage to add listener on `NetworkControl` plugin `connectionchange` event.  
+
 ---  
 > root@machine:# ./ThunderEventListner THUNDER_ACCESS 127.0.0.1:80 NetworkControl.1 connectionchange  
 > SetEnvironment is using :THUNDER_ACCESS  
