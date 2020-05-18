@@ -1,15 +1,28 @@
 #include <iostream>
 #include <bits/stdc++.h>
 #include <ctime>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
-#include <core/core.h>
 #include <core/core.h>
 #include <websocket/websocket.h>
 
 using namespace std;
 using namespace WPEFramework;
+
+std::string TimeStamp(void)
+{
+    auto now = std::chrono::system_clock::now();
+    auto time = std::chrono::system_clock::to_time_t(now);
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) -
+                  std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+    std::stringstream timeNow;
+    timeNow << std::put_time(std::localtime(&time), "%F %T.") << ms.count();
+    return (timeNow.str());
+}
 
 void showMenu(void)
 {
@@ -34,7 +47,7 @@ namespace Handlers {
     static void onEventHandler(const Core::JSON::String& parameters) {
         std::string message;
         parameters.ToString(message);
-        std::cout << "[WPEFW-JSONRPCEvt] : " << message << std::endl;
+        std::cout << "[WPEFW-JSONRPCEvt][" << TimeStamp() << "] : " << message << std::endl;
     }
 }
 
@@ -64,20 +77,20 @@ int main(int argc, char** argv)
     if (remoteObject) {
         /* Register handlers for Event reception. */
         if (remoteObject->Subscribe<Core::JSON::String>(1000, _T(event), &Handlers::onEventHandler) == Core::ERROR_NONE) {
-            std::cout << "Subscribed to event " << event << " with onEventHandler callback" << std::endl;
+            std::cout << "[" << TimeStamp() << "] Subscribed to event " << event << " with onEventHandler callback" << std::endl;
 
             /* Main loop */
             showMenu();
 
             /* Clean-Up */
             remoteObject->Unsubscribe(1000, _T(event));
-            std::cout << "Unsubscribed from event " << event << std::endl;
+            std::cout << "[" << TimeStamp() << "] Unsubscribed from event " << event << std::endl;
         } else {
-            std::cout << "Failed to Subscribed to event" << event << std::endl;
+            std::cout << "[" << TimeStamp() << "] Failed to Subscribed to event" << event << std::endl;
         }
         delete remoteObject;
     } else {
-        std::cout << "remoteObject creation failed" << std::endl;
+        std::cout << "[" << TimeStamp() << "] remoteObject creation failed" << std::endl;
     }
     return 0;
 }
