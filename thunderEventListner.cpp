@@ -5,6 +5,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <core/core.h>
+#include <core/core.h>
+#include <websocket/websocket.h>
+//#include <interfaces/IPerformance.h>
+//#include <interfaces/IMath.h>
+
+namespace WPEFramework {
+    namespace JSONRPC {
+        template <typename INTERFACE>
+            class MySmartLinkType : public JSONRPC::SmartLinkType<INTERFACE> {
+                public:
+                    MySmartLinkType(const string& remoteCallsign, const TCHAR* localCallsign)
+                        : JSONRPC::SmartLinkType<INTERFACE>(remoteCallsign, localCallsign)
+                    {
+                    }
+                    ~MySmartLinkType()
+                    {
+                    }
+
+                private:
+                    void StateChange() override{
+                        if (this->IsActivated() == true) {
+                            printf("Plugin is activated\n");
+                        } else {
+                            printf("Plugin is deactivated\n");
+                        }
+                    }
+            };
+    }
+} //Namespace WPEFramework::JSONRPC
 
 using namespace std;
 using namespace WPEFramework;
@@ -39,7 +68,6 @@ namespace Handlers {
 int main(int argc, char** argv)
 {
     int retStatus = -1;
-    JSONRPC::Client* remoteObject = NULL;
     std::string env, server, callsign, event;
     
     if (argc < 5) {
@@ -57,24 +85,18 @@ int main(int argc, char** argv)
     }
     
     Core::SystemInfo::SetEnvironment(_T(env), (_T(server)));
-    
-    if (NULL == remoteObject) {
-        remoteObject = new JSONRPC::Client(_T(callsign), _T(""));
-        if (NULL == remoteObject) {
-            std::cout << "JSONRPC::Client initialization failed" << std::endl;
-        } else {
-            /* Register handlers for Event reception. */
-            if (remoteObject->Subscribe<Core::JSON::String>(1000, _T(event),
-                        &Handlers::onEventHandler) == Core::ERROR_NONE) {
-                std::cout << "Subscribed to event " << event << " with onEventHandler callback" << std::endl;
-            } else {
-                std::cout << "Failed to Subscribed to event" << event << std::endl;
-            }
-            /* Main loop */
-            showMenu();
-            /* Clean-Up */
-            delete remoteObject;
-        }
+
+    JSONRPC::LinkType<Core::JSON::IElement> remoteObject(_T(callsign), _T(""));
+    /* Register handlers for Event reception. */
+    if (remoteObject.Subscribe<Core::JSON::String>(1000, _T(event),
+                &Handlers::onEventHandler) == Core::ERROR_NONE) {
+        std::cout << "Subscribed to event " << event << " with onEventHandler callback" << std::endl;
+    } else {
+        std::cout << "Failed to Subscribed to event" << event << std::endl;
     }
+    /* Main loop */
+    showMenu();
+    /* Clean-Up */
+    remoteObject.Unsubscribe(1000, _T(event));
     return 0;
 }
