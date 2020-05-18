@@ -12,22 +12,30 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-find_package(PkgConfig REQUIRED)
-find_package(WPEFrameworkProtocols REQUIRED)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
-    )
+find_package(PkgConfig REQUIRED)
+find_package(WPEFramework REQUIRED)
+
+if (WPEFRAMEWORK_FOUND)
+    message("WPEFRAMEWORK_FOUND = ${WPEFRAMEWORK_FOUND}")
+    message("< ${WPEFRAMEWORK_DEFINITIONS} | ${WPEFRAMEWORK_INCLUDE_DIRS} |
+        ${WPEFRAMEWORK_LIBRARIES} | ${WPEFRAMEWORK_LIBRARY_WPEFrameworkPlugins} |
+        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkCore} | 
+        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkTracing} | 
+        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkProtocols} >")
+else()
+    message(FATAL_ERROR "WPEFrameworkProtocols not found")
+endif()
 
 include(GNUInstallDirs)
 
-target_include_directories(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${WPEFrameworkProtocols_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${WPEFRAMEWORK_INCLUDE_DIRS})
 
 add_executable(${PROJECT_NAME} thunderEventListner.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    WPEFrameworkProtocols::WPEFrameworkProtocols)
+    ${WPEFRAMEWORK_LIBRARIES})
 
 # Install products
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
