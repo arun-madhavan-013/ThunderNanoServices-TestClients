@@ -7,33 +7,6 @@
 #include <core/core.h>
 #include <core/core.h>
 #include <websocket/websocket.h>
-//#include <interfaces/IPerformance.h>
-//#include <interfaces/IMath.h>
-
-namespace WPEFramework {
-    namespace JSONRPC {
-        template <typename INTERFACE>
-            class MySmartLinkType : public JSONRPC::SmartLinkType<INTERFACE> {
-                public:
-                    MySmartLinkType(const string& remoteCallsign, const TCHAR* localCallsign)
-                        : JSONRPC::SmartLinkType<INTERFACE>(remoteCallsign, localCallsign)
-                    {
-                    }
-                    ~MySmartLinkType()
-                    {
-                    }
-
-                private:
-                    void StateChange() override{
-                        if (this->IsActivated() == true) {
-                            printf("Plugin is activated\n");
-                        } else {
-                            printf("Plugin is deactivated\n");
-                        }
-                    }
-            };
-    }
-} //Namespace WPEFramework::JSONRPC
 
 using namespace std;
 using namespace WPEFramework;
@@ -61,7 +34,7 @@ namespace Handlers {
     static void onEventHandler(const Core::JSON::String& parameters) {
         std::string message;
         parameters.ToString(message);
-        std::cout << "[FWCtrlEvt] " << __FUNCTION__ << ": " << message << std::endl;
+        std::cout << "[WPEFW-JSONRPCEvt] : " << message << std::endl;
     }
 }
 
@@ -76,6 +49,7 @@ int main(int argc, char** argv)
 
     for (int i = 0; i < argc; i++) {
         switch (i) {
+            case 0: break;
             case 1: env = argv[i]; std::cout << "SetEnvironment is using :" << env << std::endl; break;
             case 2: server = argv[i]; std::cout << "Connect to server using :" << server << std::endl; break;
             case 3: callsign = argv[i]; std::cout << "Plugin callsign is :" << callsign << std::endl; break;
@@ -83,20 +57,27 @@ int main(int argc, char** argv)
             default: std::cout << "Will not use :" << argv[i] << std::endl; break;
         }
     }
-    
-    Core::SystemInfo::SetEnvironment(_T(env), (_T(server)));
 
-    JSONRPC::LinkType<Core::JSON::IElement> remoteObject(_T(callsign), _T(""));
-    /* Register handlers for Event reception. */
-    if (remoteObject.Subscribe<Core::JSON::String>(1000, _T(event),
-                &Handlers::onEventHandler) == Core::ERROR_NONE) {
-        std::cout << "Subscribed to event " << event << " with onEventHandler callback" << std::endl;
+    Core::SystemInfo::SetEnvironment(_T(env), (_T(server)));
+    JSONRPC::LinkType<Core::JSON::IElement> *remoteObject = new JSONRPC::LinkType<Core::JSON::IElement>(_T(callsign), _T(""));
+
+    if (remoteObject) {
+        /* Register handlers for Event reception. */
+        if (remoteObject->Subscribe<Core::JSON::String>(1000, _T(event), &Handlers::onEventHandler) == Core::ERROR_NONE) {
+            std::cout << "Subscribed to event " << event << " with onEventHandler callback" << std::endl;
+
+            /* Main loop */
+            showMenu();
+
+            /* Clean-Up */
+            remoteObject->Unsubscribe(1000, _T(event));
+            std::cout << "Unsubscribed from event " << event << std::endl;
+        } else {
+            std::cout << "Failed to Subscribed to event" << event << std::endl;
+        }
+        delete remoteObject;
     } else {
-        std::cout << "Failed to Subscribed to event" << event << std::endl;
+        std::cout << "remoteObject creation failed" << std::endl;
     }
-    /* Main loop */
-    showMenu();
-    /* Clean-Up */
-    remoteObject.Unsubscribe(1000, _T(event));
     return 0;
 }
