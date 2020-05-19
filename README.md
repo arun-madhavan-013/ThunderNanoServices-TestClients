@@ -2,6 +2,10 @@
 
 CPP Test client to verify Thunder plugin generated events.  
 
+This code has been written taking [ThunderNanoServices JSONRPCClient](https://github.com/rdkcentral/ThunderNanoServices/tree/master/examples/JSONRPCClient) as reference.
+
+Visit [Thunder](https://github.com/rdkcentral/Thunder) and [ThunderNanoServices](https://github.com/rdkcentral/ThunderNanoServices) to know more...!!!
+
 ---  
 
 ### How to  
