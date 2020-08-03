@@ -66,3 +66,23 @@ Sample: add listener on `FirmwareControl` plugin `upgradeprogress` event.
 > [WPEFW-JSONRPCEvt][2020-05-26 14:57:34.938] : "{\"status\":\"installstarted\",\"error\":\"none\",\"percentage\":70}"  
 > [WPEFW-JSONRPCEvt][2020-05-26 14:57:35.116] : "{\"status\":\"upgradecompleted\",\"error\":\"none\",\"percentage\":100}"  
 </details>  
+
+### Yocto recipe integration   
+
+<details>
+  <summary>Click to see sample recipe file</summary>  
+  
+```
+DESCRIPTION = "Sample recipe for bitbake."
+SECTION = "Apps"
+LICENSE = "CLOSED"
+
+SRCREV = "${AUTOREV}"
+
+SRC_URI = "git://github.com/arun-madhavan-013/ThunderNanoServices-TestClients.git;protocol=https;branch=master"
+
+S = "${WORKDIR}/git"
+inherit pkgconfig cmake
+```
+
+</details>  
