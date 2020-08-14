@@ -44,7 +44,7 @@ void showUsage(char *pName)
 /* This section is related to the event handler implementation for Thunder Plugin Events. */
 namespace Handlers {
     /* Event Handlers */
-    static void onEventHandler(const Core::JSON::String& parameters) {
+    static void onEventHandler(const JsonObject& parameters) {
         std::string message;
         parameters.ToString(message);
         std::cout << "[WPEFW-JSONRPCEvt][" << TimeStamp() << "] : " << message << std::endl;
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 
     if (remoteObject) {
         /* Register handlers for Event reception. */
-        if (remoteObject->Subscribe<Core::JSON::String>(1000, _T(event), &Handlers::onEventHandler) == Core::ERROR_NONE) {
+        if (remoteObject->Subscribe<JsonObject>(1000, _T(event), &Handlers::onEventHandler) == Core::ERROR_NONE) {
             std::cout << "[" << TimeStamp() << "] Subscribed to event " << event << " with onEventHandler callback" << std::endl;
 
             /* Main loop */
