@@ -1,23 +1,35 @@
-## ThunderNanoServices-TestClient  
+## ThunderNanoServices-TestClient
 
-CPP Test client to verify Thunder plugin generated events.  
-
-This code has been written taking [ThunderNanoServices JSONRPCClient](https://github.com/rdkcentral/ThunderNanoServices/tree/master/examples/JSONRPCClient) as reference.
+CPP Test client to verify Thunder plugin generated events has been written taking [ThunderNanoServices JSONRPCClient](https://github.com/rdkcentral/ThunderNanoServices/tree/master/examples/JSONRPCClient) as reference.
 
 Visit [Thunder](https://github.com/rdkcentral/Thunder) and [ThunderNanoServices](https://github.com/rdkcentral/ThunderNanoServices) to know more...!!!
+
+JavaScript test client uses `ws` module.
 
 ---  
 
 ### How to  
 
-Sample usage `./ThunderEventListner THUNDER_ACCESS <LocalIP:Port> <PluginCallSign>.<PluginVersion> <EventName>`  
+Sample usage of CPP Test Client `./ThunderEventListner THUNDER_ACCESS <DeviceIP:Port> <PluginCallSign>.<PluginVersion> <EventName>`  
+
+Sample usage of JavaScript Test Client `nodejs thunderEventListnerJavaScriptClient.js <DeviceIP:Port> <PluginCallSign>.<PluginVersion> <EventName>`
+
+JavaScript Dependencies (Ubuntu):
+```
+sudo apt install npm
+npm install ws
+```
+(Optional)
+```
+npm install --save-optional bufferutil utf-8-validate
+```  
 
 ---
 
 Sample: add listener on `NetworkControl` plugin `connectionchange` event.  
 
 <details>
-  <summary>Click to see logs!</summary>  
+  <summary>Click to see CPP ThunderEventListner logs!</summary>  
   
   > root@device:# ./ThunderEventListner THUNDER_ACCESS 127.0.0.1:80 NetworkControl connectionchange  
   > SetEnvironment is using :THUNDER_ACCESS  
@@ -43,6 +55,17 @@ Sample: add listener on `NetworkControl` plugin `connectionchange` event.
   >      L1 [11307]: "Message: {"id":2,"method":"NetworkControl.unregister","params":{ "event": "connectionchange", "id": ""}} send"    
   > [WPEFW-JSONRPCEvt][2020-05-26 15:21:53.128] Unsubscribed from event connectionchange  
 </details>  
+
+<details>
+  <summary>Click to see JavaScript in action!</summary>
+
+  > d35@d35$ nodejs thunderEventListnerJavaScriptClient.js 192.168.0.21:9998 org.rdk.DisplaySettings.1 connectedVideoDisplaysUpdated
+  > [open] Connection established with Thunder running @ 192.168.0.21:9998
+  > [open] Subscribing to events...
+  > [message] Data received from server: {"jsonrpc":"2.0","id":1,"result":0}
+  > [message] Data received from server: {"jsonrpc":"2.0","method":"client.events.1.connectedVideoDisplaysUpdated","params":{"connectedVideoDisplays":[]}}
+  > [message] Data received from server: {"jsonrpc":"2.0","method":"client.events.1.connectedVideoDisplaysUpdated","params":{"connectedVideoDisplays":["HDMI0"]}}
+</details>
 
 ---
 
