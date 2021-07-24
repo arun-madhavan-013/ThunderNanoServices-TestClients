@@ -1,36 +1,62 @@
 const WebSocket = require('ws');
-var myArgs = process.argv.slice(2);
-const ThunderAccess = "ws://" + myArgs[0] + "/jsonrpc";
+const config = require('./config.json');
 
-if (myArgs[0] == null || myArgs[1] == null ||myArgs[2] == null) {
-	console.log("Usage: nodejs thunderEventListnerJavaScriptClient.js <deviceIP>:<Port> <PluginCallSign>.<PluginVersion> <EventName>");
-	process.exit(1);
-}
+let socket = new WebSocket("ws://" + config.thunderAccess + "/jsonrpc", "");
+var subscribeRequests = [];
 
-let socket = new WebSocket("ws://" + myArgs[0] + "/jsonrpc", "");
 socket.onopen = function(e) {
-  console.log("[open] Connection established with Thunder running @ " + myArgs[0]);
-  console.log("[open] Subscribing to events...");
-  //Eg: {"jsonrpc": "2.0","id": 5,"method":"org.rdk.System.1.register","params": {"event":"onSystemPowerStateChanged","id":"client.events.1"}}
-  var cmd = JSON.stringify({jsonrpc:'2.0',id:1, method: myArgs[1] + ".register", params:{event:myArgs[2], id:"client.events.1"}});
-  //console.log(cmd);
-  socket.send(cmd);
+	console.log("[socketOpen]: Connection established with Thunder running @ " + config.thunderAccess);
+	if (Array.isArray(config.subscribe)) {
+		var idCount = 1;
+		config.subscribe.forEach(function(plugin, indexPlugin){
+			var callSign = plugin.pluginCallsign;
+			if (Array.isArray(plugin.events)) {
+				plugin.events.forEach(function(eventName, indexEvents){
+                    var data = {jsonrpc:'2.0',id:idCount, method:plugin.pluginCallsign + ".register", params:{event:eventName, id:"client.events."+idCount}};
+					console.log("[configData]: " + JSON.stringify(data));
+                    subscribeRequests.push(data);
+					idCount++;
+				});
+			}
+		});
+	}
+    socket.emit('thunderresponse', socket, subscribeRequests);
 };
 
-socket.onmessage = function(event) {
-  console.log(`[message] Data received from server: ${event.data}`);
+socket.on('thunderresponse', function thunderresponse(socket, subscribeRequests) {
+    var req = subscribeRequests.shift();
+    if (req != undefined) {
+        console.log("[thunderReq]: Subscribing " + JSON.stringify(req));
+        socket.send(JSON.stringify(req));
+    } else if (req == undefined) {
+        console.log("[thunderNow]: Awaiting events...");
+    }
+});
+
+socket.onmessage = function(thunderevent) {
+    var data = JSON.parse(thunderevent.data);
+    if (data.hasOwnProperty('result') && data['result'] != 0) {
+        console.log("[thunderRsp]: something is not right...!!!");
+    } else if (data.hasOwnProperty('error') || data.hasOwnProperty('result') && data['result'] == 0) {
+        console.log("[thunderRsp]: " + JSON.stringify(data));
+        /* TODO: handle error. */
+        /* Continue assuming that particular plugin is deactivated, Subscribe to remaining events */
+        socket.emit('thunderresponse', socket, subscribeRequests);
+    } else {
+        /* May be the event. */
+        console.log("[thunderEvt]: " + JSON.stringify(data));
+    }
 };
 
 socket.onclose = function(event) {
-  if (event.wasClean) {
-    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-  } else {
-    // e.g. server process killed or network down
-    // event.code is usually 1006 in this case
-    console.log('[close] Connection died');
-  }
+	if (event.wasClean) {
+		console.log(`[socktClose]: Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+	} else {
+		console.log("[socktClose]: Connection died");
+	}
 };
 
 socket.onerror = function(error) {
-  console.log(`[error] ${error.message}`);
+	console.log(`[socktError]: ${error.message}`);
 };
+

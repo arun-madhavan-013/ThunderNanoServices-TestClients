@@ -12,7 +12,7 @@ JavaScript test client uses `ws` module.
 
 Sample usage of CPP Test Client `./ThunderEventListner THUNDER_ACCESS <DeviceIP:Port> <PluginCallSign>.<PluginVersion> <EventName>`  
 
-Sample usage of JavaScript Test Client `nodejs thunderEventListnerJavaScriptClient.js <DeviceIP:Port> <PluginCallSign>.<PluginVersion> <EventName>`
+Sample usage of JavaScript Test Client `nodejs thunderEventListnerJavaScriptClient.js`. Update the config.json with required details.
 
 JavaScript Dependencies (Ubuntu):
 ```
@@ -59,12 +59,35 @@ Sample: add listener on `NetworkControl` plugin `connectionchange` event.
 <details>
   <summary>Click to see JavaScript in action!</summary>
 
-  > d35@d35$ nodejs thunderEventListnerJavaScriptClient.js 192.168.0.21:9998 org.rdk.DisplaySettings.1 connectedVideoDisplaysUpdated
-  > [open] Connection established with Thunder running @ 192.168.0.21:9998
-  > [open] Subscribing to events...
-  > [message] Data received from server: {"jsonrpc":"2.0","id":1,"result":0}
-  > [message] Data received from server: {"jsonrpc":"2.0","method":"client.events.1.connectedVideoDisplaysUpdated","params":{"connectedVideoDisplays":[]}}
-  > [message] Data received from server: {"jsonrpc":"2.0","method":"client.events.1.connectedVideoDisplaysUpdated","params":{"connectedVideoDisplays":["HDMI0"]}}
+  > d35@d35:$ nodejs thunderEventListnerJavaScriptClient.js 
+  > [socketOpen]: Connection established with Thunder running @ 192.168.0.16:9998 
+  > [configData]: {\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"org.rdk.RDKShell.1.register\",\"params\":{\"event\":\"onSuspend\",\"id\":\"client.events.1\"}}
+  > [configData]: {\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"org.rdk.HdcpProfile.1.register\",\"params\":{\"event\":\"onDisplayConnectionChanged\",\"id\":\"client.events.2\"}}
+  > [configData]: {\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"org.rdk.Network.1.register\",\"params\":{\"event\":\"onConnectionStatusChanged\",\"id\":\"client.events.3\"}}
+  > [configData]: {\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"org.rdk.Network.1.register\",\"params\":{\"event\":\"onDefaultInterfaceChanged\",\"id\":\"client.events.4\"}}
+  > [configData]: {\"jsonrpc\":\"2.0\",\"id\":5,\"method\":\"org.rdk.Network.1.register\",\"params\":{\"event\":\"onInterfaceStatusChanged\",\"id\":\"client.events.5\"}}
+  > [thunderReq]: Subscribing {\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"org.rdk.RDKShell.1.register\",\"params\":{\"event\":\"onSuspend\",\"id\":\"client.events.1\"}}
+  > [thunderRsp]: {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":0}
+  > [thunderReq]: Subscribing {\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"org.rdk.HdcpProfile.1.register\",\"params\":{\"event\":\"onDisplayConnectionChanged\",\"id\":\"client.events.2\"}}
+  > [thunderRsp]: {\"jsonrpc\":\"2.0\",\"id\":2,\"result\":0}
+  > [thunderReq]: Subscribing {\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"org.rdk.Network.1.register\",\"params\":{\"event\":\"onConnectionStatusChanged\",\"id\":\"client.events.3\"}}
+  > [thunderRsp]: {\"jsonrpc\":\"2.0\",\"id\":3,\"result\":0}
+  > [thunderReq]: Subscribing {\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"org.rdk.Network.1.register\",\"params\":{\"event\":\"onDefaultInterfaceChanged\",\"id\":\"client.events.4\"}}
+  > [thunderRsp]: {\"jsonrpc\":\"2.0\",\"id\":4,\"result\":0}
+  > [thunderReq]: Subscribing {\"jsonrpc\":\"2.0\",\"id\":5,\"method\":\"org.rdk.Network.1.register\",\"params\":{\"event\":\"onInterfaceStatusChanged\",\"id\":\"client.events.5\"}}
+  > [thunderRsp]: {\"jsonrpc\":\"2.0\",\"id\":5,\"result\":0}
+  > [thunderNow]: Awaiting events...
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.3.onConnectionStatusChanged\",\"params\":{\"interface\":\"ETHERNET\",\"status\":\"DISCONNECTED\"}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.4.onDefaultInterfaceChanged\",\"params\":{\"oldInterfaceName\":\"ETHERNET\",\"newInterfaceName\":\"\"}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.3.onConnectionStatusChanged\",\"params\":{\"interface\":\"ETHERNET\",\"status\":\"CONNECTED\"}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.4.onDefaultInterfaceChanged\",\"params\":{\"oldInterfaceName\":\"\",\"newInterfaceName\":\"ETHERNET\"}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.2.onDisplayConnectionChanged\",\"params\":{\"HDCPStatus\":{\"isConnected\":false,\"isHDCPCompliant\":false,\"isHDCPEnabled\":false,\"hdcpReason\":2,\"supportedHDCPVersion\":\"2.2\",\"receiverHDCPVersion\":\"1.4\",\"currentHDCPVersion\":\"1.4\"}}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.2.onDisplayConnectionChanged\",\"params\":{\"HDCPStatus\":{\"isConnected\":false,\"isHDCPCompliant\":false,\"isHDCPEnabled\":false,\"hdcpReason\":2,\"supportedHDCPVersion\":\"2.2\",\"receiverHDCPVersion\":\"1.4\",\"currentHDCPVersion\":\"1.4\"}}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.2.onDisplayConnectionChanged\",\"params\":{\"HDCPStatus\":{\"isConnected\":false,\"isHDCPCompliant\":false,\"isHDCPEnabled\":false,\"hdcpReason\":2,\"supportedHDCPVersion\":\"2.2\",\"receiverHDCPVersion\":\"1.4\",\"currentHDCPVersion\":\"1.4\"}}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.2.onDisplayConnectionChanged\",\"params\":{\"HDCPStatus\":{\"isConnected\":true,\"isHDCPCompliant\":true,\"isHDCPEnabled\":false,\"hdcpReason\":2,\"supportedHDCPVersion\":\"2.2\",\"receiverHDCPVersion\":\"1.4\",\"currentHDCPVersion\":\"1.4\"}}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.2.onDisplayConnectionChanged\",\"params\":{\"HDCPStatus\":{\"isConnected\":true,\"isHDCPCompliant\":true,\"isHDCPEnabled\":true,\"hdcpReason\":2,\"supportedHDCPVersion\":\"2.2\",\"receiverHDCPVersion\":\"1.4\",\"currentHDCPVersion\":\"1.4\"}}}
+  > [thunderEvt]: {\"jsonrpc\":\"2.0\",\"method\":\"client.events.2.onDisplayConnectionChanged\",\"params\":{\"HDCPStatus\":{\"isConnected\":true,\"isHDCPCompliant\":true,\"isHDCPEnabled\":true,\"hdcpReason\":2,\"supportedHDCPVersion\":\"2.2\",\"receiverHDCPVersion\":\"1.4\",\"currentHDCPVersion\":\"1.4\"}}}
+  > 
 </details>
 
 ---
