@@ -1,5 +1,19 @@
+var configFile = "./config.json";
+var myArgs = process.argv.slice(2);
+
+if (myArgs[0]) {
+    configFile=myArgs[0];
+}
 const WebSocket = require('ws');
-const config = require('./config.json');
+
+try {
+    require(configFile);
+} catch (e) {
+    console.log('Error: Use relative or absolute path for the config file. (Eg: ./config.json or ~/Desktop/config.json) !!!\n');
+}
+
+const config = require(configFile);
+console.log("Using config file: '" + configFile + "'");
 
 let socket = new WebSocket("ws://" + config.thunderAccess + "/jsonrpc", "");
 var subscribeRequests = [];
