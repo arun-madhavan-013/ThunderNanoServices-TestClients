@@ -17,6 +17,7 @@ console.log("Using config file: '" + configFile + "'");
 
 let socket = new WebSocket("ws://" + config.thunderAccess + "/jsonrpc", "");
 var subscribeRequests = [];
+var totalSubscribedEvents = 0;
 
 socket.onopen = function(e) {
 	console.log("[socketOpen]: Connection established with Thunder running @ " + config.thunderAccess);
@@ -30,6 +31,7 @@ socket.onopen = function(e) {
 					console.log("[configData]: " + JSON.stringify(data));
                     subscribeRequests.push(data);
 					idCount++;
+                    totalSubscribedEvents++;
 				});
 			}
 		});
@@ -40,8 +42,16 @@ socket.onopen = function(e) {
 socket.on('thunderresponse', function thunderresponse(socket, subscribeRequests) {
     var req = subscribeRequests.shift();
     if (req != undefined) {
-        console.log("[thunderReq]: Subscribing " + JSON.stringify(req));
+        console.log("[thunderReq]: Sending " + JSON.stringify(req));
         socket.send(JSON.stringify(req));
+        if (req.method.includes("unregister")) {
+            totalSubscribedEvents--;
+            if (totalSubscribedEvents == 0) {
+                console.log("[socketClose]: Disconnecting from " + config.thunderAccess);
+                socket.close();
+                process.exit();
+            }
+        }
     } else if (req == undefined) {
         console.log("[thunderNow]: Awaiting events...");
     }
@@ -74,3 +84,22 @@ socket.onerror = function(error) {
 	console.log(`[socktError]: ${error.message}`);
 };
 
+function doCleanUp() {
+    console.log("[Interrupt!]: Triggering clean-up...");
+	if (Array.isArray(config.subscribe)) {
+		var idCount = 1;
+		config.subscribe.forEach(function(plugin, indexPlugin){
+			var callSign = plugin.pluginCallsign;
+			if (Array.isArray(plugin.events)) {
+				plugin.events.forEach(function(eventName, indexEvents){
+                    var data = {jsonrpc:'2.0',id:idCount, method:plugin.pluginCallsign + ".unregister", params:{event:eventName, id:"client.events."+idCount}};
+                    subscribeRequests.push(data);
+					idCount++;
+				});
+			}
+		});
+	}
+    socket.emit('thunderresponse', socket, subscribeRequests);
+}
+
+process.on('SIGINT', doCleanUp);
