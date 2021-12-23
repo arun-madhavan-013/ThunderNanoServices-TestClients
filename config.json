@@ -1,8 +1,8 @@
 {
 	"thunderAccess":"192.168.0.16:9998",
 	"subscribe":[
-		{"pluginCallsign":"org.rdk.RDKShell.1","events":["onSuspend"]},
-        {"pluginCallsign":"org.rdk.HdcpProfile.1","events":["onDisplayConnectionChanged"]},
-        {"pluginCallsign":"org.rdk.Network.1","events":["onConnectionStatusChanged","onDefaultInterfaceChanged","onInterfaceStatusChanged"]}
+		{"pluginCallsign":"org.rdk.RDKShell","events":["onSuspend"]},
+        {"pluginCallsign":"org.rdk.HdcpProfile","events":["onDisplayConnectionChanged"]},
+        {"pluginCallsign":"org.rdk.Network","events":["onConnectionStatusChanged","onDefaultInterfaceChanged","onInterfaceStatusChanged"]}
 	]
 }
