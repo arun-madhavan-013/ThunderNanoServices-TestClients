@@ -15,7 +15,7 @@ try {
 const config = require(configFile);
 console.log("Using config file: '" + configFile + "'");
 
-let socket = new WebSocket("ws://" + config.thunderAccess + "/jsonrpc", "");
+let socket = new WebSocket('ws://' + config.thunderAccess + '/jsonrpc');
 var subscribeRequests = [];
 var totalSubscribedEvents = 0;
 
