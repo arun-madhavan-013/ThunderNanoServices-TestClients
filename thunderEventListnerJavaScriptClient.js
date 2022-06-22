@@ -46,17 +46,17 @@ function parseConfig(cfgFile) {
 function activatePlugin(data){try{var res=axios.post('http://'+config.thunderAccess+'/jsonrpc',JSON.stringify(data));}catch(err){console.error(err);}}
 
 socket.onopen = function(e) {
-	clearInterval(timerHandle);
+	clearTimeout(timerHandle);
 	console.log("[socketOpen]: Connection established with Thunder running @ " + config.thunderAccess);
 	/* Try activating plugins... */
 	parseConfig(config);
 	if (Array.isArray(activateRequests)){activateRequests.forEach(function(eventName,indexEvents){activatePlugin(eventName);});}
 	/* Subscribe to Notifications after a timeout... */
-	timerHandle = setInterval(function(socket, subscribeRequests){socket.emit('thunderresponse', socket, subscribeRequests);},500,socket,subscribeRequests);
+	timerHandle = setTimeout(function(socket, subscribeRequests){socket.emit('thunderresponse', socket, subscribeRequests);},500,socket,subscribeRequests);
 };
 
 socket.on('thunderresponse', function thunderresponse(socket, subscribeRequests) {
-	clearInterval(timerHandle);
+	clearTimeout(timerHandle);
 	var req = subscribeRequests.shift();
 	if (req != undefined) {
 		console.log("[thunderReq]: Sending " + JSON.stringify(req));
