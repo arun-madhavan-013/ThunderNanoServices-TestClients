@@ -5,6 +5,7 @@ if (myArgs[0]) {
 	configFile=myArgs[0];
 }
 const WebSocket = require('ws');
+const axios = require('axios');
 
 try {
 	require(configFile);
@@ -16,20 +17,23 @@ const config = require(configFile);
 console.log("Using config file: '" + configFile + "'");
 
 let socket = new WebSocket('ws://' + config.thunderAccess + '/jsonrpc');
+var activateRequests = [];
 var subscribeRequests = [];
 var totalSubscribedEvents = 0;
+var totalActivateReqs = 0;
+var timerHandle;
 
-socket.onopen = function(e) {
-	console.log("[socketOpen]: Connection established with Thunder running @ " + config.thunderAccess);
-	if (Array.isArray(config.subscribe)) {
+function parseConfig(cfgFile) {
+	if (Array.isArray(cfgFile.subscribe)) {
 		var idCount = 1;
-		config.subscribe.forEach(function(plugin, indexPlugin){
+		cfgFile.subscribe.forEach(function(plugin, indexPlugin){
 			var callSign = plugin.pluginCallsign;
+			var activate = {jsonrpc:'2.0',id:123, method: "Controller.1.activate", params:{callsign: plugin.pluginCallsign}};
+			activateRequests.push(activate);
+			totalActivateReqs++;
 			if (Array.isArray(plugin.events)) {
-				/* Subscribe to Notifications */
 				plugin.events.forEach(function(eventName, indexEvents){
 					var data = {jsonrpc:'2.0',id:idCount, method:plugin.pluginCallsign + ".register", params:{event:eventName, id:"client.events."+idCount}};
-					console.log("[configData]: " + JSON.stringify(data));
 					subscribeRequests.push(data);
 					idCount++;
 					totalSubscribedEvents++;
@@ -37,10 +41,22 @@ socket.onopen = function(e) {
 			}
 		});
 	}
-	socket.emit('thunderresponse', socket, subscribeRequests);
+}
+
+function activatePlugin(data){try{var res=axios.post('http://'+config.thunderAccess+'/jsonrpc',JSON.stringify(data));}catch(err){console.error(err);}}
+
+socket.onopen = function(e) {
+	clearInterval(timerHandle);
+	console.log("[socketOpen]: Connection established with Thunder running @ " + config.thunderAccess);
+	/* Try activating plugins... */
+	parseConfig(config);
+	if (Array.isArray(activateRequests)){activateRequests.forEach(function(eventName,indexEvents){activatePlugin(eventName);});}
+	/* Subscribe to Notifications after a timeout... */
+	timerHandle = setInterval(function(socket, subscribeRequests){socket.emit('thunderresponse', socket, subscribeRequests);},500,socket,subscribeRequests);
 };
 
 socket.on('thunderresponse', function thunderresponse(socket, subscribeRequests) {
+	clearInterval(timerHandle);
 	var req = subscribeRequests.shift();
 	if (req != undefined) {
 		console.log("[thunderReq]: Sending " + JSON.stringify(req));

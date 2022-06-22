@@ -1,0 +1,23 @@
+{
+  "name": "thundernanoservices-testclients",
+  "version": "1.0.0",
+  "description": "CPP Test client to verify Thunder plugin generated events has been written taking [ThunderNanoServices JSONRPCClient](https://github.com/rdkcentral/ThunderNanoServices/tree/master/examples/JSONRPCClient) as reference.",
+  "main": "thunderEventListnerJavaScriptClient.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arun-madhavan-013/ThunderNanoServices-TestClients.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/arun-madhavan-013/ThunderNanoServices-TestClients/issues"
+  },
+  "homepage": "https://github.com/arun-madhavan-013/ThunderNanoServices-TestClients#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "ws": "^8.8.0"
+  }
+}
