@@ -17,12 +17,8 @@ Sample usage of JavaScript Test Client `nodejs thunderEventListnerJavaScriptClie
 JavaScript Dependencies (Ubuntu):
 ```
 sudo apt install npm
-npm install ws
+npm install
 ```
-(Optional)
-```
-npm install --save-optional bufferutil utf-8-validate
-```  
 
 ---
 
