@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/arun-madhavan-013/ThunderNanoServices-TestClients#readme",
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.6.0",
     "ws": "^8.8.0"
   }
 }
