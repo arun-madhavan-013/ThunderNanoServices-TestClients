@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Playback App</title>
+    <style>
+        #volumeBar {
+            width: 300px;
+            height: 20px;
+            background-color: #eee;
+            margin-top: 20px;
+        }
+
+        #volumeLevel {
+            height: 100%;
+            width: 0;
+            background-color: #4CAF50;
+            transition: width 0.2s, background-color 0.2s; /* Add a smooth transition effect for both width and background-color */
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio Playback App</h1>
+    <button onclick="playAudio()">Play</button>
+    <button onclick="stopAudio()">Stop</button>
+    <div id="volumeBar">
+        <div id="volumeLevel"></div>
+    </div>
+
+    <script>
+        let audioContext;
+        let audioBuffer;
+        let audioSource;
+        let gainNode;
+        let prevVolume = 0;
+
+        function initializeAudioContext() {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Create or resume the AudioContext inside a user-triggered event
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('AudioContext created successfully.');
+                    resolve();
+                } catch (error) {
+                    console.error('Error creating AudioContext:', error.message);
+                    reject(error);
+                }
+            });
+        }
+
+        function loadAudioFile() {
+            return new Promise((resolve, reject) => {
+                // Load audio file from the provided URL
+                fetch('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.arrayBuffer();
+                    })
+                    .then(buffer => audioContext.decodeAudioData(buffer))
+                    .then(decodedBuffer => {
+                        audioBuffer = decodedBuffer;
+                        console.log('Audio file loaded successfully.');
+                        resolve();
+                    })
+                    .catch(error => {
+                        console.error('Error loading audio file:', error.message);
+                        reject(error);
+                    });
+            });
+        }
+
+        async function playAudio() {
+            try {
+                await initializeAudioContext();
+                await loadAudioFile();
+
+                if (audioBuffer) {
+                    // Create buffer source
+                    audioSource = audioContext.createBufferSource();
+                    audioSource.buffer = audioBuffer;
+
+                    // Create gain node
+                    gainNode = audioContext.createGain();
+                    audioSource.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    // Gradually increase volume to a higher range
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(1.0, audioContext.currentTime + 10); // 10 seconds
+
+                    // Hold the higher volume for 7 seconds
+                    gainNode.gain.setValueAtTime(1.0, audioContext.currentTime + 7);
+                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 22); // Gradually decrease volume in 15 seconds
+
+                    // Start audio playback
+                    audioSource.start();
+
+                    // Update visual volume bar continuously while playing
+                    updateVolumeBar();
+                } else {
+                    console.error('Audio buffer not loaded yet.');
+                }
+            } catch (error) {
+                console.error('Error during playback:', error.message);
+            }
+        }
+
+        function stopAudio() {
+            if (audioSource) {
+                audioSource.stop();
+            } else {
+                console.error('Audio source not playing.');
+            }
+        }
+
+        function updateVolumeBar() {
+            // Update the width of the volume level div based on the current gain value
+            const volumeLevelElement = document.getElementById('volumeLevel');
+            if (volumeLevelElement) {
+                const duration = audioBuffer.duration;
+                const interval = 100; // Update interval in milliseconds
+                const startTime = audioContext.currentTime;
+
+                const update = () => {
+                    const currentTime = audioContext.currentTime - startTime;
+                    const currentVolume = gainNode ? gainNode.gain.value : 0;
+
+                    // Calculate the width based on the elapsed time and volume level
+                    const width = (currentTime / duration) * currentVolume * 100;
+                    volumeLevelElement.style.width = `${width}%`;
+
+                    // Dynamically change background color based on volume change
+                    const backgroundColor = currentVolume > prevVolume ? '#FF0000' : '#4CAF50';
+                    volumeLevelElement.style.backgroundColor = backgroundColor;
+
+                    prevVolume = currentVolume; // Update previous volume
+
+                    if (currentTime < duration) {
+                        // Continue updating while the audio is playing
+                        requestAnimationFrame(update);
+                    }
+                };
+
+                // Start the update loop
+                update();
+            }
+        }
+    </script>
+</body>
+</html>
