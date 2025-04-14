@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 
-set(PROJECT_NAME "ThunderEventListner")
-set(DESCRIPTION "Client to listen to the events of Thunder and Thunder Plugins.")
+set(PROJECT_NAME "ENTSRVICECOMRPCTestClient")
+set(DESCRIPTION "EntServices COMRPC Client to test the COMRPC implementation.")
 set(DEFAULT_BUILD_TYPE "Release")
 
 project(${PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
@@ -21,8 +21,8 @@ if (WPEFRAMEWORK_FOUND)
     message("WPEFRAMEWORK_FOUND = ${WPEFRAMEWORK_FOUND}")
     message("< ${WPEFRAMEWORK_DEFINITIONS} | ${WPEFRAMEWORK_INCLUDE_DIRS} |
         ${WPEFRAMEWORK_LIBRARIES} | ${WPEFRAMEWORK_LIBRARY_WPEFrameworkPlugins} |
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkCore} | 
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkTracing} | 
+        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkCore} |
+        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkTracing} |
         ${WPEFRAMEWORK_LIBRARY_WPEFrameworkProtocols} >")
 else()
     message(FATAL_ERROR "WPEFrameworkProtocols not found")
@@ -32,7 +32,7 @@ include(GNUInstallDirs)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${WPEFRAMEWORK_INCLUDE_DIRS})
 
-add_executable(${PROJECT_NAME} thunderEventListner.cpp)
+add_executable(${PROJECT_NAME} entServicesCOMRPC-FrameRateTest.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${WPEFRAMEWORK_LIBRARIES})
