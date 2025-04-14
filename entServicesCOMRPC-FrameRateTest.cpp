@@ -7,46 +7,46 @@ using namespace WPEFramework;
 
 // RAII Wrapper for IFrameRate
 class FrameRateProxy {
-public:
-    explicit FrameRateProxy(Exchange::IFrameRate* frameRate) : _frameRate(frameRate) {}
-    ~FrameRateProxy() {
-        if (_frameRate != nullptr) {
-            std::cout << "Releasing FrameRate proxy..." << std::endl;
-            _frameRate->Release();
+    public:
+        explicit FrameRateProxy(Exchange::IFrameRate* frameRate) : _frameRate(frameRate) {}
+        ~FrameRateProxy() {
+            if (_frameRate != nullptr) {
+                std::cout << "Releasing FrameRate proxy..." << std::endl;
+                _frameRate->Release();
+            }
         }
-    }
 
-    Exchange::IFrameRate* operator->() const { return _frameRate; }
-    Exchange::IFrameRate* Get() const { return _frameRate; }
+        Exchange::IFrameRate* operator->() const { return _frameRate; }
+        Exchange::IFrameRate* Get() const { return _frameRate; }
 
-private:
-    Exchange::IFrameRate* _frameRate;
+    private:
+        Exchange::IFrameRate* _frameRate;
 };
 
 /********************************* Test All IFrameRate Events **********************************/
 class FrameRateEventHandler : public Exchange::IFrameRate::INotification {
-public:
-    // Handle FPS event
-    void OnFpsEvent(int average, int min, int max) override {
-        std::cout << "FPS Event - Average: " << average << ", Min: " << min << ", Max: " << max << std::endl;
-    }
+    public:
+        // Handle FPS event
+        void OnFpsEvent(int average, int min, int max) override {
+            std::cout << "FPS Event - Average: " << average << ", Min: " << min << ", Max: " << max << std::endl;
+        }
 
-    // Handle display frame rate changing event
-    void OnDisplayFrameRateChanging(const std::string& displayFrameRate) override {
-        std::cout << "Display Frame Rate Changing to: " << displayFrameRate << std::endl;
-    }
+        // Handle display frame rate changing event
+        void OnDisplayFrameRateChanging(const std::string& displayFrameRate) override {
+            std::cout << "Display Frame Rate Changing to: " << displayFrameRate << std::endl;
+        }
 
-    // Handle display frame rate changed event
-    void OnDisplayFrameRateChanged(const std::string& displayFrameRate) override {
-        std::cout << "Display Frame Rate Changed to: " << displayFrameRate << std::endl;
-    }
+        // Handle display frame rate changed event
+        void OnDisplayFrameRateChanged(const std::string& displayFrameRate) override {
+            std::cout << "Display Frame Rate Changed to: " << displayFrameRate << std::endl;
+        }
 
-    BEGIN_INTERFACE_MAP(FrameRateEventHandler)
-        INTERFACE_ENTRY(Exchange::IFrameRate::INotification)
-    END_INTERFACE_MAP
+        BEGIN_INTERFACE_MAP(FrameRateEventHandler)
+            INTERFACE_ENTRY(Exchange::IFrameRate::INotification)
+        END_INTERFACE_MAP
 };
 
-int main()
+int main(void)
 {
     /******************************************* Init *******************************************/
     // Get environment variables
@@ -61,7 +61,7 @@ int main()
     // Initialize COMRPC
     Core::SystemInfo::SetEnvironment(_T("THUNDER_ACCESS"), envThunderAccess);
     Core::ProxyType<RPC::CommunicatorClient> client = Core::ProxyType<RPC::CommunicatorClient>::Create(
-        Core::NodeId(envThunderAccess));
+            Core::NodeId(envThunderAccess));
 
     if (client.IsValid() == false) {
         std::cerr << "Failed to create COMRPC client." << std::endl;
@@ -159,7 +159,7 @@ int main()
 
     /******************************************* Clean-Up *******************************************/
     // FrameRateProxy destructor will automatically release the proxy
-	std::cout << "Exiting..." << std::endl;
-	frameRate->Unregister(&eventHandler);
+    std::cout << "Exiting..." << std::endl;
+    frameRate->Unregister(&eventHandler);
     return 0;
 }
