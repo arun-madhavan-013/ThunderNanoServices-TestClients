@@ -157,6 +157,13 @@ int main(void)
         std::cerr << "Failed to update FPS. Error: " << result << std::endl;
     }
 
+	/************************************ Wait for Notifications ************************************/
+
+    std::cout << "Waiting for events... Press Ctrl+C to exit." << std::endl;
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(60));
+    }
+
     /******************************************* Clean-Up *******************************************/
     // FrameRateProxy destructor will automatically release the proxy
     std::cout << "Exiting..." << std::endl;
