@@ -1,6 +1,6 @@
 #include <iostream>
-#include <com/com.h>
-#include <core/core.h>
+#include <WPEFramework/com/com.h>
+#include <WPEFramework/core/core.h>
 #include "WPEFramework/interfaces/IFrameRate.h"
 
 using namespace WPEFramework;
