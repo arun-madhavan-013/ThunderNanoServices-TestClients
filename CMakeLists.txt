@@ -19,33 +19,19 @@ endif()
 #list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(PkgConfig REQUIRED)
-find_package(WPEFramework REQUIRED)
-#find_package(EntServicesAPIs REQUIRED)
+find_package(WPEFrameworkCore REQUIRED)
 
-if (WPEFRAMEWORK_FOUND)
-    message("WPEFRAMEWORK_FOUND = ${WPEFRAMEWORK_FOUND}")
-    message("< ${WPEFRAMEWORK_DEFINITIONS} | ${WPEFRAMEWORK_INCLUDE_DIRS} |
-        ${WPEFRAMEWORK_LIBRARIES} | ${WPEFRAMEWORK_LIBRARY_WPEFrameworkPlugins} |
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkCore} |
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkTracing} |
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkProtocols} >")
-else()
-    message(FATAL_ERROR "WPEFrameworkProtocols not found")
-endif()
+set(COMMON_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${WPEFRAMEWORKCORE_INCLUDE_DIRS}
+)
 
-if (ENTSERVICESAPIS_FOUND)
-    message("ENTSERVICESAPIS_FOUND = ${ENTSERVICESAPIS_FOUND}")
-    message("< ${ENTSERVICESAPIS_INCLUDE_DIRS} | ${ENTSERVICESAPIS_LIBRARIES} >")
-else()
-    message(INFO "EntServices APIs not found")
-endif()
+set(COMMON_LIBRARIES
+    ${WPEFRAMEWORKCORE_LIBRARIES}
+)
 
-if (WPEFRAMEWORKPLUGIN_FOUND)
-    message("WPEFRAMEWORKPLUGIN_FOUND = ${WPEFRAMEWORKPLUGIN_FOUND}")
-    message("< ${WPEFRAMEWORKPLUGIN_INCLUDE_DIRS} | ${WPEFRAMEWORKPLUGIN_LIBRARIES} >")
-else()
-    message(INFO "WPEFrameworkPlugins not found")
-endif()
+message(STATUS "Common include directories: ${COMMON_INCLUDE_DIRS}")
+message(STATUS "Common libraries: ${COMMON_LIBRARIES}")
 
 include(GNUInstallDirs)
 
@@ -55,18 +41,8 @@ set(TEST_TARGETS)
 if (FRAMERATETESTAPP)
     message(STATUS "Framerate test application is enabled.")
     add_executable(${TESTBINPREFIX}-Framerate entServicesCOMRPC-FrameRateTest.cpp)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE
-        ${WPEFRAMEWORK_INCLUDE_DIRS}
-        ${ENTSERVICESAPIS_INCLUDE_DIRS}
-        ${WPEFRAMEWORKPLUGIN_INCLUDE_DIRS}
-        )
-    target_link_libraries(${TESTBINPREFIX}-Framerate PRIVATE
-        ${WPEFRAMEWORK_LIBRARIES}
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkCore}
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkTracing}
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkProtocols}
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkPlugins}
-        )
+    target_include_directories(${TESTBINPREFIX}-Framerate PRIVATE ${COMMON_INCLUDE_DIRS})
+    target_link_libraries(${TESTBINPREFIX}-Framerate PRIVATE ${COMMON_LIBRARIES})
     list(APPEND TEST_TARGETS ${TESTBINPREFIX}-Framerate)
 else()
     message(STATUS "Framerate test application is disabled.")
@@ -75,18 +51,8 @@ endif()
 if (DEVICEINFOTESTAPP)
     message(STATUS "DeviceInfo test application is enabled.")
     add_executable(${TESTBINPREFIX}-DeviceInfo entServicesCOMRPC-DeviceInfoTest.cpp)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE
-        ${WPEFRAMEWORK_INCLUDE_DIRS}
-        ${ENTSERVICESAPIS_INCLUDE_DIRS}
-        ${WPEFRAMEWORKPLUGIN_INCLUDE_DIRS}
-        )
-    target_link_libraries(${TESTBINPREFIX}-DeviceInfo PRIVATE
-        ${WPEFRAMEWORK_LIBRARIES}
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkCore}
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkTracing}
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkProtocols}
-        ${WPEFRAMEWORK_LIBRARY_WPEFrameworkPlugins}
-        )
+    target_include_directories(${TESTBINPREFIX}-DeviceInfo PRIVATE ${COMMON_INCLUDE_DIRS})
+    target_link_libraries(${TESTBINPREFIX}-DeviceInfo PRIVATE ${COMMON_LIBRARIES})
     list(APPEND TEST_TARGETS ${TESTBINPREFIX}-DeviceInfo)
 else()
     message(STATUS "DeviceInfo test application is disabled.")
