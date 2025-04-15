@@ -54,12 +54,11 @@ int main(void)
     DeviceInfoProxy deviceInfo(rawDeviceInfo);
 
     /************************************* Test All Methods **************************************/
-    bool success = false;
     uint32_t result = Core::ERROR_NONE;
 
     std::string makeResponse;
-    result = deviceInfo->Make(makeResponse, success);
-    if (result == Core::ERROR_NONE && success) {
+    result = deviceInfo->Make(makeResponse);
+    if (result == Core::ERROR_NONE) {
         std::cout << "Make response: " << makeResponse << std::endl;
     } else {
         std::cerr << "Failed to get Make info. Error: " << result << std::endl;
