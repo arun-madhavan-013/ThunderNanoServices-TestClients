@@ -1,7 +1,7 @@
 #include <com/com.h>
 #include <core/core.h>
 #include <iostream>
-#include "IDeviceInfo.h"
+#include "WPEFramework/interfaces/IDeviceInfo.h"
 
 using namespace WPEFramework;
 
