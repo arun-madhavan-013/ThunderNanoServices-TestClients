@@ -8,7 +8,7 @@ using namespace WPEFramework;
 // RAII Wrapper for DeviceInfo
 class DeviceInfoProxy {
     public:
-        explicit DeviceInfoProxy(Exchange::IDeviceInfo* deviceInfo) : _deviceInfo(frameRate) {}
+        explicit DeviceInfoProxy(Exchange::IDeviceInfo* deviceInfo) : _deviceInfo(deviceInfo) {}
         ~DeviceInfoProxy() {
             if (_deviceInfo != nullptr) {
                 std::cout << "Releasing DeviceInfo proxy..." << std::endl;
@@ -47,7 +47,7 @@ int main(void)
 
     /************************************* Plugin Connector **************************************/
     // Create a proxy for the DeviceInfo plugin
-    Exchange::IDeviceInfo* rawDeviceInfo = client->Open<Exchange::IFrameRate>(_T("DeviceInfo"));
+    Exchange::IDeviceInfo* rawDeviceInfo = client->Open<Exchange::IDeviceInfo>(_T("DeviceInfo"));
     if (rawDeviceInfo == nullptr) {
         std::cerr << "Failed to connect to DeviceInfo plugin." << std::endl;
         return 1;
