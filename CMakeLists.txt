@@ -5,7 +5,8 @@ set(DESCRIPTION "EntServices COMRPC Client to test the COMRPC implementation.")
 set(DEFAULT_BUILD_TYPE "Release")
 project(${PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
 
-set(TESTBINPREFIX "comprpcTestPlugin")
+set(TESTBINPREFIX "comprpcPluginTest")
+set(MODULE_NAME ${TESTBINPREFIX})
 
 option(FRAMERATETESTAPP "Enable Framerate test application" OFF)
 option(DEVICEINFOTESTAPP "Enable DeviceInfo test application" OFF)
