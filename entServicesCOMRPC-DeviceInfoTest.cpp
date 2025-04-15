@@ -27,13 +27,9 @@ int main(void)
 {
     /******************************************* Init *******************************************/
     // Get environment variables
-    static char* envThunderAccess = std::getenv("THUNDER_ACCESS");
-    if (envThunderAccess != nullptr) {
-        std::cout << "THUNDER_ACCESS: " << envThunderAccess << std::endl;
-    } else {
-        std::cout << "THUNDER_ACCESS env not set, using default: /tmp/communicator" << std::endl;
-        envThunderAccess = "/tmp/communicator";
-    }
+    const char* thunderAccess = std::getenv("THUNDER_ACCESS");
+    std::string envThunderAccess = (thunderAccess != nullptr) ? thunderAccess : "/tmp/communicator";
+	std::cout << "Using THUNDER_ACCESS: " << envThunderAccess << std::endl;
 
     // Initialize COMRPC
     Core::SystemInfo::SetEnvironment(_T("THUNDER_ACCESS"), envThunderAccess);
@@ -61,7 +57,7 @@ int main(void)
     bool success = false;
     uint32_t result = Core::ERROR_NONE;
 
-    String makeResponse;
+    std::String makeResponse;
     result = deviceInfo->Make(makeResponse, success);
     if (result == Core::ERROR_NONE && success) {
         std::cout << "Make response: " << makeResponse << std::endl;
