@@ -3,6 +3,9 @@
 #include <WPEFramework/core/core.h>
 #include "WPEFramework/interfaces/IDeviceInfo.h"
 
+#include "Module.h"
+MODULE_NAME_DECLARATION(BUILD_REFERENCE)
+
 using namespace WPEFramework;
 
 // RAII Wrapper for DeviceInfo
