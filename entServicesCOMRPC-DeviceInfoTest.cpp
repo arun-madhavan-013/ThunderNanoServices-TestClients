@@ -29,12 +29,12 @@ int main(void)
     // Get environment variables
     const char* thunderAccess = std::getenv("THUNDER_ACCESS");
     std::string envThunderAccess = (thunderAccess != nullptr) ? thunderAccess : "/tmp/communicator";
-	std::cout << "Using THUNDER_ACCESS: " << envThunderAccess << std::endl;
+    std::cout << "Using THUNDER_ACCESS: " << envThunderAccess << std::endl;
 
     // Initialize COMRPC
-    Core::SystemInfo::SetEnvironment(_T("THUNDER_ACCESS"), envThunderAccess);
+    Core::SystemInfo::SetEnvironment(_T("THUNDER_ACCESS"), envThunderAccess.c_str());
     Core::ProxyType<RPC::CommunicatorClient> client = Core::ProxyType<RPC::CommunicatorClient>::Create(
-            Core::NodeId(envThunderAccess));
+            Core::NodeId(envThunderAccess.c_str()));
 
     if (client.IsValid() == false) {
         std::cerr << "Failed to create COMRPC client." << std::endl;
@@ -57,7 +57,7 @@ int main(void)
     bool success = false;
     uint32_t result = Core::ERROR_NONE;
 
-    std::String makeResponse;
+    std::string makeResponse;
     result = deviceInfo->Make(makeResponse, success);
     if (result == Core::ERROR_NONE && success) {
         std::cout << "Make response: " << makeResponse << std::endl;
