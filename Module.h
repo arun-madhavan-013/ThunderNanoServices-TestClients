@@ -1,10 +1,10 @@
 #pragma once
+
 #ifndef MODULE_NAME
-#define MODULE_NAME Binary_ComRPCTestApp
+#define MODULE_NAME COMRPCTestApp
 #endif
 
-#include <plugins/plugins.h>
-#include <tracing/tracing.h>
+#include <core/core.h>
 
 #undef EXTERNAL
 #define EXTERNAL
