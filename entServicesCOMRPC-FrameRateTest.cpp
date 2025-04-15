@@ -3,10 +3,6 @@
 #include <WPEFramework/core/core.h>
 #include "WPEFramework/interfaces/IFrameRate.h"
 
-#ifndef MODULE_NAME
-#define MODULE_NAME TestApplication
-#endif
-
 using namespace WPEFramework;
 
 // RAII Wrapper for IFrameRate
