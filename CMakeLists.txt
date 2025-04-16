@@ -3,9 +3,12 @@ cmake_minimum_required(VERSION 3.3)
 set(PROJECT_NAME "ENTSRVICECOMRPCTestClients")
 set(DESCRIPTION "EntServices COMRPC Client to test the COMRPC implementation.")
 set(DEFAULT_BUILD_TYPE "Release")
-project(${PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
 
-set(TESTBINPREFIX "comprpcPluginTest")
+project(${PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+
+set(TESTBINPREFIX "ComRPCPluginTest")
 set(MODULE_NAME ${TESTBINPREFIX})
 
 option(FRAMERATETESTAPP "Enable Framerate test application" OFF)
@@ -31,14 +34,14 @@ set(COMMON_INCLUDE_DIRS
     ${WPEFRAMEWORKWEBSOCKET_INCLUDE_DIRS}
     ${WPEFRAMEWORKDEFINITIONS_INCLUDE_DIRS}
     ${WPEFRAMEWORKPLUGINS_INCLUDE_DIRS}
-)
+    )
 
 set(COMMON_LIBRARIES
     ${WPEFRAMEWORKCORE_LIBRARIES}
     ${WPEFRAMEWORKWEBSOCKET_LIBRARIES}
     ${WPEFRAMEWORKDEFINITIONS_LIBRARIES}
     ${WPEFRAMEWORKPLUGINS_LIBRARIES}
-)
+    )
 
 message(STATUS "Common include directories: ${COMMON_INCLUDE_DIRS}")
 message(STATUS "Common libraries: ${COMMON_LIBRARIES}")
@@ -50,10 +53,11 @@ set(TEST_TARGETS)
 
 if (FRAMERATETESTAPP)
     message(STATUS "Framerate test application is enabled.")
+    set(FRAMERATE_EXECUTABLE_NAME "${TESTBINPREFIX}-FrameRateTest")
     add_executable(${FRAMERATE_EXECUTABLE_NAME} entServicesCOMRPC-FrameRateTest.cpp)
+    target_compile_definitions(${FRAMERATE_EXECUTABLE_NAME} PUBLIC MODULE_NAME=\"${FRAMERATE_EXECUTABLE_NAME}\")
     target_include_directories(${FRAMERATE_EXECUTABLE_NAME} PRIVATE ${COMMON_INCLUDE_DIRS})
     target_link_libraries(${FRAMERATE_EXECUTABLE_NAME} PRIVATE ${COMMON_LIBRARIES})
-    target_compile_definitions(${FRAMERATE_EXECUTABLE_NAME} PRIVATE MODULE_NAME=\"${FRAMERATE_EXECUTABLE_NAME}\")
     list(APPEND TEST_TARGETS ${FRAMERATE_EXECUTABLE_NAME})
 else()
     message(STATUS "Framerate test application is disabled.")
@@ -61,11 +65,12 @@ endif()
 
 if (DEVICEINFOTESTAPP)
     message(STATUS "DeviceInfo test application is enabled.")
-    add_executable(COMRPCTestApp entServicesCOMRPC-DeviceInfoTest.cpp)
-    target_include_directories(COMRPCTestApp PRIVATE ${COMMON_INCLUDE_DIRS})
-    target_link_libraries(COMRPCTestApp PRIVATE ${COMMON_LIBRARIES})
-	set_target_properties(COMRPCTestApp PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES)
-    list(APPEND TEST_TARGETS COMRPCTestApp)
+    set(DEVICEINFO_EXECUTABLE_NAME "${TESTBINPREFIX}-DeviceInfoTest")
+    add_executable(${DEVICEINFO_EXECUTABLE_NAME} entServicesCOMRPC-DeviceInfoTest.cpp)
+    target_compile_definitions(${FRAMERATE_EXECUTABLE_NAME} PUBLIC MODULE_NAME=\"${FRAMERATE_EXECUTABLE_NAME}\")
+    target_include_directories(${DEVICEINFO_EXECUTABLE_NAME} PRIVATE ${COMMON_INCLUDE_DIRS})
+    target_link_libraries(${DEVICEINFO_EXECUTABLE_NAME} PRIVATE ${COMMON_LIBRARIES})
+    list(APPEND TEST_TARGETS ${DEVICEINFO_EXECUTABLE_NAME})
 else()
     message(STATUS "DeviceInfo test application is disabled.")
 endif()
