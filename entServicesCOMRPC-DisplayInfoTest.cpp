@@ -34,12 +34,26 @@ class DisplayInfoProxy {
 // Notification handler for DisplayInfo updates
 class DisplayInfoNotification : public Exchange::IConnectionProperties::INotification {
     public:
-        DisplayInfoNotification() = default;
+        DisplayInfoNotification() : _refCount(0) {}
         ~DisplayInfoNotification() override = default;
 
+        // Override the Updated method
         void Updated(const Source event) override {
             std::string eventName = EventToString(event);
             std::cout << "DisplayInfo updated notification received! Event: " << eventName << std::endl;
+        }
+
+        // Implement AddRef and Release methods
+        void AddRef() const override {
+            _refCount.fetch_add(1, std::memory_order_relaxed);
+        }
+
+        uint32_t Release() const override {
+            uint32_t refCount = _refCount.fetch_sub(1, std::memory_order_acq_rel) - 1;
+            if (refCount == 0) {
+                delete this;
+            }
+            return refCount;
         }
 
         BEGIN_INTERFACE_MAP(DisplayInfoNotification)
@@ -57,6 +71,8 @@ class DisplayInfoNotification : public Exchange::IConnectionProperties::INotific
                     default: return "UnknownEvent";
                 }
             }
+
+            mutable std::atomic<uint32_t> _refCount; // Reference count for AddRef/Release
 };
 
 // Helper function to print results
