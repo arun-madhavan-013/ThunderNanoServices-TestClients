@@ -84,6 +84,7 @@ if (DISPLAYINFOTESTAPP)
 	list(APPEND TEST_TARGETS ${DISPLAYINFO_EXECUTABLE_NAME})
 else()
 	message(STATUS "DisplayInfo test application is disabled.")
+endif()
 
 # Install dynamically added targets
 if (TEST_TARGETS)
