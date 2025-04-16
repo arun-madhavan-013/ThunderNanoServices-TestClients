@@ -6,7 +6,7 @@
 #ifndef MODULE_NAME
 #define MODULE_NAME COMRPCTestApp
 #else
-#include "../Module.h"
+#include "Module.h"
 #endif
 MODULE_NAME_DECLARATION(BUILD_REFERENCE)
 
