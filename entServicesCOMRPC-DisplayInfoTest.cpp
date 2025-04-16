@@ -58,21 +58,21 @@ class DisplayInfoNotification : public Exchange::IConnectionProperties::INotific
 
         BEGIN_INTERFACE_MAP(DisplayInfoNotification)
             INTERFACE_ENTRY(Exchange::IConnectionProperties::INotification)
-            END_INTERFACE_MAP
+        END_INTERFACE_MAP
 
     private:
-            // Helper function to map Source enum to string
-            std::string EventToString(const Source event) const {
-                switch (event) {
-                    case PRE_RESOLUTION_CHANGE: return "PreResolutionChange";
-                    case POST_RESOLUTION_CHANGE: return "PostResolutionChange";
-                    case HDMI_CHANGE: return "HdmiChange";
-                    case HDCP_CHANGE: return "HdcpChange";
-                    default: return "UnknownEvent";
-                }
+        // Helper function to map Source enum to string
+        std::string EventToString(const Source event) const {
+            switch (event) {
+                case PRE_RESOLUTION_CHANGE: return "PreResolutionChange";
+                case POST_RESOLUTION_CHANGE: return "PostResolutionChange";
+                case HDMI_CHANGE: return "HdmiChange";
+                case HDCP_CHANGE: return "HdcpChange";
+                default: return "UnknownEvent";
             }
+        }
 
-            mutable std::atomic<uint32_t> _refCount; // Reference count for AddRef/Release
+        mutable std::atomic<uint32_t> _refCount; // Reference count for AddRef/Release
 };
 
 // Helper function to print results
@@ -85,7 +85,8 @@ void PrintResult(const std::string& propertyName, uint32_t result, const T& valu
     }
 }
 
-int main() {
+int main()
+{
     /******************************************* Init *******************************************/
     // Get environment variables
     const char* thunderAccess = std::getenv("THUNDER_ACCESS");
