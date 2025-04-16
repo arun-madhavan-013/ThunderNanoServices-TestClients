@@ -3,11 +3,7 @@
 #include <WPEFramework/core/core.h>
 #include "WPEFramework/interfaces/IDeviceInfo.h"
 
-#ifndef MODULE_NAME
 #define MODULE_NAME COMRPCTestApp
-#else
-#include "Module.h"
-#endif
 MODULE_NAME_DECLARATION(BUILD_REFERENCE)
 
 using namespace WPEFramework;
