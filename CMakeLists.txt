@@ -13,6 +13,7 @@ set(MODULE_NAME ${TESTBINPREFIX})
 
 option(FRAMERATETESTAPP "Enable Framerate test application" OFF)
 option(DEVICEINFOTESTAPP "Enable DeviceInfo test application" OFF)
+option(DISPLAYINFOTESTAPP "Enable DisplayInfo test application" OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
@@ -72,6 +73,17 @@ if (DEVICEINFOTESTAPP)
 else()
     message(STATUS "DeviceInfo test application is disabled.")
 endif()
+
+if (DISPLAYINFOTESTAPP)
+	message(STATUS "DisplayInfo test application is enabled.")
+	set(DISPLAYINFO_EXECUTABLE_NAME "${TESTBINPREFIX}DisplayInfoTest")
+	add_executable(${DISPLAYINFO_EXECUTABLE_NAME} entServicesCOMRPC-DisplayInfoTest.cpp)
+	target_compile_definitions(${DISPLAYINFO_EXECUTABLE_NAME} PUBLIC MODULE_NAME=${DISPLAYINFO_EXECUTABLE_NAME})
+	target_include_directories(${DISPLAYINFO_EXECUTABLE_NAME} PRIVATE ${COMMON_INCLUDE_DIRS})
+	target_link_libraries(${DISPLAYINFO_EXECUTABLE_NAME} PRIVATE ${COMMON_LIBRARIES})
+	list(APPEND TEST_TARGETS ${DISPLAYINFO_EXECUTABLE_NAME})
+else()
+	message(STATUS "DisplayInfo test application is disabled.")
 
 # Install dynamically added targets
 if (TEST_TARGETS)
