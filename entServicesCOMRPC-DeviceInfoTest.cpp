@@ -1,5 +1,4 @@
 #define MODULE_NAME COMRPCTestApp
-MODULE_NAME_DECLARATION(BUILD_REFERENCE)
 
 #include <iostream>
 #include <WPEFramework/com/com.h>
