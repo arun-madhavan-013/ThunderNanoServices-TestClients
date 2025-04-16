@@ -1,4 +1,6 @@
-#define MODULE_NAME DEVICEINFO_EXECUTABLE_NAME
+#ifndef MODULE_NAME
+#define MODULE_NAME COMRPCTestApp
+#endif
 
 #include <iostream>
 #include <WPEFramework/com/com.h>

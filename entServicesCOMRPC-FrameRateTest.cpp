@@ -1,3 +1,7 @@
+#ifndef MODULE_NAME
+#define MODULE_NAME COMRPCTestApp
+#endif
+
 #include <iostream>
 #include <WPEFramework/com/com.h>
 #include <WPEFramework/core/core.h>
@@ -50,18 +54,15 @@ int main(void)
 {
     /******************************************* Init *******************************************/
     // Get environment variables
-    static char* envThunderAccess = std::getenv("THUNDER_ACCESS");
-    if (envThunderAccess != nullptr) {
-        std::cout << "THUNDER_ACCESS: " << envThunderAccess << std::endl;
-    } else {
-        std::cout << "THUNDER_ACCESS env not set, using default: /tmp/communicator" << std::endl;
-        envThunderAccess = "/tmp/communicator";
-    }
+    // Get environment variables
+    const char* thunderAccess = std::getenv("THUNDER_ACCESS");
+    std::string envThunderAccess = (thunderAccess != nullptr) ? thunderAccess : "/tmp/communicator";
+    std::cout << "Using THUNDER_ACCESS: " << envThunderAccess << std::endl;
 
     // Initialize COMRPC
-    Core::SystemInfo::SetEnvironment(_T("THUNDER_ACCESS"), envThunderAccess);
+    Core::SystemInfo::SetEnvironment(_T("THUNDER_ACCESS"), envThunderAccess.c_str());
     Core::ProxyType<RPC::CommunicatorClient> client = Core::ProxyType<RPC::CommunicatorClient>::Create(
-            Core::NodeId(envThunderAccess));
+            Core::NodeId(envThunderAccess.c_str()));
 
     if (client.IsValid() == false) {
         std::cerr << "Failed to create COMRPC client." << std::endl;
