@@ -14,53 +14,62 @@ using namespace WPEFramework;
 
 // RAII Wrapper for DisplayInfo
 class DisplayInfoProxy {
-public:
-    explicit DisplayInfoProxy(Exchange::IConnectionProperties* connectionProperties)
-        : _connectionProperties(connectionProperties) {}
-    ~DisplayInfoProxy() {
-        if (_connectionProperties != nullptr) {
-            std::cout << "Releasing DisplayInfo proxy..." << std::endl;
-            _connectionProperties->Release();
+    public:
+        explicit DisplayInfoProxy(Exchange::IConnectionProperties* connectionProperties)
+            : _connectionProperties(connectionProperties) {}
+        ~DisplayInfoProxy() {
+            if (_connectionProperties != nullptr) {
+                std::cout << "Releasing DisplayInfo proxy..." << std::endl;
+                _connectionProperties->Release();
+            }
         }
-    }
 
-    Exchange::IConnectionProperties* operator->() const { return _connectionProperties; }
-    Exchange::IConnectionProperties* Get() const { return _connectionProperties; }
+        Exchange::IConnectionProperties* operator->() const { return _connectionProperties; }
+        Exchange::IConnectionProperties* Get() const { return _connectionProperties; }
 
-private:
-    Exchange::IConnectionProperties* _connectionProperties;
+    private:
+        Exchange::IConnectionProperties* _connectionProperties;
 };
 
 // Notification handler for DisplayInfo updates
 class DisplayInfoNotification : public Exchange::IConnectionProperties::INotification {
-public:
-    DisplayInfoNotification() = default;
-    ~DisplayInfoNotification() override = default;
+    public:
+        DisplayInfoNotification() = default;
+        ~DisplayInfoNotification() override = default;
 
-    void Updated(const Source event) override {
-        std::string eventName = EventToString(event);
-        std::cout << "DisplayInfo updated notification received! Event: " << eventName << std::endl;
-    }
-
-    BEGIN_INTERFACE_MAP(DisplayInfoNotification)
-        INTERFACE_ENTRY(Exchange::IConnectionProperties::INotification)
-    END_INTERFACE_MAP
-
-private:
-    // Helper function to map Source enum to string
-    std::string EventToString(const Source event) const {
-        switch (event) {
-            case PRE_RESOLUTION_CHANGE: return "PreResolutionChange";
-            case POST_RESOLUTION_CHANGE: return "PostResolutionChange";
-            case HDMI_CHANGE: return "HdmiChange";
-            case HDCP_CHANGE: return "HdcpChange";
-            default: return "UnknownEvent";
+        void Updated(const Source event) override {
+            std::string eventName = EventToString(event);
+            std::cout << "DisplayInfo updated notification received! Event: " << eventName << std::endl;
         }
-    }
+
+        BEGIN_INTERFACE_MAP(DisplayInfoNotification)
+            INTERFACE_ENTRY(Exchange::IConnectionProperties::INotification)
+            END_INTERFACE_MAP
+
+    private:
+            // Helper function to map Source enum to string
+            std::string EventToString(const Source event) const {
+                switch (event) {
+                    case PRE_RESOLUTION_CHANGE: return "PreResolutionChange";
+                    case POST_RESOLUTION_CHANGE: return "PostResolutionChange";
+                    case HDMI_CHANGE: return "HdmiChange";
+                    case HDCP_CHANGE: return "HdcpChange";
+                    default: return "UnknownEvent";
+                }
+            }
 };
 
-int main()
-{
+// Helper function to print results
+template <typename T>
+void PrintResult(const std::string& propertyName, uint32_t result, const T& value) {
+    if (result == Core::ERROR_NONE) {
+        std::cout << propertyName << ": " << value << std::endl;
+    } else {
+        std::cerr << "Failed to get " << propertyName << ". Error: " << result << std::endl;
+    }
+}
+
+int main() {
     /******************************************* Init *******************************************/
     // Get environment variables
     const char* thunderAccess = std::getenv("THUNDER_ACCESS");
@@ -70,7 +79,7 @@ int main()
     // Initialize COMRPC
     Core::SystemInfo::SetEnvironment(_T("THUNDER_ACCESS"), envThunderAccess.c_str());
     Core::ProxyType<RPC::CommunicatorClient> client = Core::ProxyType<RPC::CommunicatorClient>::Create(
-        Core::NodeId(envThunderAccess.c_str()));
+            Core::NodeId(envThunderAccess.c_str()));
 
     if (client.IsValid() == false) {
         std::cerr << "Failed to create COMRPC client." << std::endl;
@@ -99,14 +108,6 @@ int main()
     }
 
     /************************************* Test All Methods **************************************/
-    auto PrintResult = [](const std::string& propertyName, uint32_t result, auto value) {
-        if (result == Core::ERROR_NONE) {
-            std::cout << propertyName << ": " << value << std::endl;
-        } else {
-            std::cerr << "Failed to get " << propertyName << ". Error: " << result << std::endl;
-        }
-    };
-
     bool isConnected = false;
     result = displayInfo->Connected(isConnected);
     PrintResult("HDMI Connection Status", result, (isConnected ? "Connected" : "Disconnected"));
