@@ -1,0 +1,131 @@
+name: Maintainer Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to create (format: X.Y.Z, example: 1.2.3)"
+        required: true
+        type: string
+      prerelease:
+        description: "Mark GitHub Release as pre-release"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: maintainer-release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Create Tagged Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify maintainer/admin permissions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const actor = context.actor;
+            const { owner, repo } = context.repo;
+            const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner,
+              repo,
+              username: actor
+            });
+
+            const allowed = new Set(["maintain", "admin"]);
+            if (!allowed.has(data.permission)) {
+              core.setFailed(`User ${actor} has '${data.permission}' permission. Only maintainers/admins can run this workflow.`);
+              return;
+            }
+
+            core.info(`Permission check passed for ${actor}: ${data.permission}`);
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create release branch, update changelog, merge to main/develop, and tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${TAG}" ]]; then
+            echo "Tag input cannot be empty."
+            exit 1
+          fi
+
+          if [[ ! "${TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid tag '${TAG}'. Required format: X.Y.Z (example: 1.2.3)."
+            exit 1
+          fi
+
+          RELEASE_BRANCH="release/${TAG}"
+
+          git fetch origin main develop --tags
+
+          if git ls-remote --exit-code --heads origin "${RELEASE_BRANCH}" >/dev/null 2>&1; then
+            echo "Branch '${RELEASE_BRANCH}' already exists on origin."
+            exit 1
+          fi
+
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag '${TAG}' already exists."
+            exit 1
+          fi
+
+          git branch --track main origin/main 2>/dev/null || true
+          git branch --track develop origin/develop 2>/dev/null || true
+
+          git switch --create "${RELEASE_BRANCH}" "origin/develop"
+
+          npm ci
+          npm install --no-save auto-changelog
+
+          git tag -a "${TAG}" -m "Release ${TAG}"
+          npx auto-changelog --output CHANGELOG.md
+
+          if git diff --quiet -- CHANGELOG.md; then
+            echo "No CHANGELOG.md updates detected for ${TAG}."
+          else
+            git add CHANGELOG.md
+            git commit -m "chore(release): update changelog for ${TAG}"
+          fi
+
+          git tag -fa "${TAG}" -m "Release ${TAG}"
+
+          git switch main
+          git merge --ff-only origin/main
+          git merge --ff-only "${RELEASE_BRANCH}"
+
+          git switch develop
+          git merge --ff-only origin/develop
+          git merge --ff-only "${RELEASE_BRANCH}"
+
+          git push origin "${RELEASE_BRANCH}"
+          git push origin main develop
+          git push origin "refs/tags/${TAG}"
+
+      - name: Create GitHub release for tag
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          generate_release_notes: true
+          prerelease: ${{ inputs.prerelease }}
