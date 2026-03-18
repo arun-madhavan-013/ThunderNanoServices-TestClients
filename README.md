@@ -21,6 +21,50 @@ npm install
 
 ---
 
+### Maintainer release workflow (test repo)
+
+This repository includes a manual GitHub Actions release workflow at [ .github/workflows/maintainer-release.yml ](.github/workflows/maintainer-release.yml).
+
+Flow implemented:
+
+1. Maintainer triggers workflow manually from GitHub Actions.
+2. Workflow creates `release/<tag>` from `develop`.
+3. Workflow generates `CHANGELOG.md` using `auto-changelog`.
+4. Workflow commits changelog updates on the release branch.
+5. Workflow fast-forwards `main` and `develop` to the same release commit.
+6. Workflow pushes tag and creates a GitHub Release.
+
+#### One-time setup for this test repo
+
+1. Ensure both `main` and `develop` branches exist on remote.
+2. Ensure runner can push to `main`, `develop`, and `release/*` branches.
+3. In repo settings, keep `GITHUB_TOKEN` workflow permissions as Read and write.
+4. Triggering user must have `maintain` or `admin` permission.
+
+#### How to run
+
+1. Open GitHub -> Actions -> `Maintainer Release`.
+2. Click `Run workflow`.
+3. Enter a new tag in `X.Y.Z` format (example: `1.0.1`).
+4. Optionally set `prerelease`.
+5. Start workflow and wait for all steps to complete.
+
+#### How to verify
+
+1. Confirm branch `release/<tag>` is created from `develop`.
+2. Confirm `CHANGELOG.md` contains an entry for the new tag.
+3. Confirm the same commit hash is HEAD of both `main` and `develop`.
+4. Confirm tag exists and a GitHub Release is published.
+
+#### Porting to colleague-owned repos
+
+1. Copy [ .github/workflows/maintainer-release.yml ](.github/workflows/maintainer-release.yml).
+2. Ensure target repo has `main` and `develop` branches.
+3. Ensure branch protection allows the workflow bot to push release updates.
+4. Run once with a test tag in `X.Y.Z` format, for example `0.0.1`.
+
+---
+
 Sample: add listener on `NetworkControl` plugin `connectionchange` event.
 
 <details>
