@@ -1,8 +1,6 @@
 {
-	"thunderAccess":"192.168.0.16:9998",
+	"thunderAccess":"10.0.0.249:9998",
 	"subscribe":[
-		{"pluginCallsign":"org.rdk.RDKShell","events":["onSuspend"]},
-        {"pluginCallsign":"org.rdk.HdcpProfile","events":["onDisplayConnectionChanged"]},
-        {"pluginCallsign":"org.rdk.Network","events":["onConnectionStatusChanged","onDefaultInterfaceChanged","onInterfaceStatusChanged"]}
+		{"pluginCallsign":"org.rdk.RDKWindowManager","events":["onScreenshotComplete"]}
 	]
 }

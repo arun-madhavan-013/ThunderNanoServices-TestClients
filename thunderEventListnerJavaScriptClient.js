@@ -6,6 +6,8 @@ if (myArgs[0]) {
 }
 const WebSocket = require('ws');
 const axios = require('axios');
+const fs = require('fs');
+const { PNG } = require('pngjs');
 
 try {
 	require(configFile);
@@ -22,6 +24,22 @@ var subscribeRequests = [];
 var totalSubscribedEvents = 0;
 var totalActivateReqs = 0;
 var timerHandle;
+var fileID = 1;
+var displayWidth = 1920;
+var displayHeight = 1080;
+
+async function fetchDisplayResolution() {
+	try {
+		var url = 'http://' + config.thunderAccess + '/jsonrpc';
+		var wRes = await axios.post(url, {jsonrpc:'2.0', id:21, method:'org.rdk.DisplayInfo.width'});
+		var hRes = await axios.post(url, {jsonrpc:'2.0', id:13, method:'org.rdk.DisplayInfo.height'});
+		if (wRes.data && wRes.data.result) { displayWidth  = wRes.data.result; }
+		if (hRes.data && hRes.data.result) { displayHeight = hRes.data.result; }
+		console.log('[displayInfo]: Resolution ' + displayWidth + 'x' + displayHeight);
+	} catch (err) {
+		console.log('[displayInfo]: Failed to fetch resolution, defaulting to ' + displayWidth + 'x' + displayHeight + ' (' + err.message + ')');
+	}
+}
 
 function parseConfig(cfgFile) {
 	if (Array.isArray(cfgFile.subscribe)) {
@@ -51,8 +69,10 @@ socket.onopen = function(e) {
 	/* Try activating plugins... */
 	parseConfig(config);
 	if (Array.isArray(activateRequests)){activateRequests.forEach(function(eventName,indexEvents){activatePlugin(eventName);});}
-	/* Subscribe to Notifications after a timeout... */
-	timerHandle = setTimeout(function(socket, subscribeRequests){socket.emit('thunderresponse', socket, subscribeRequests);},500,socket,subscribeRequests);
+	/* Fetch display resolution, then subscribe to Notifications after a timeout... */
+	fetchDisplayResolution().then(function() {
+		timerHandle = setTimeout(function(socket, subscribeRequests){socket.emit('thunderresponse', socket, subscribeRequests);},500,socket,subscribeRequests);
+	});
 };
 
 socket.on('thunderresponse', function thunderresponse(socket, subscribeRequests) {
@@ -85,7 +105,29 @@ socket.onmessage = function(thunderevent) {
 		socket.emit('thunderresponse', socket, subscribeRequests);
 	} else {
 		/* May be the event. */
-		console.log("[thunderEvt]: " + JSON.stringify(data));
+		// if its onScreenshotComplete; then save imageData as a file. (Eg: screenshot.png)
+		if (data.method && data.method.includes("onScreenshotComplete") && data.params && data.params.success && data.params.imageData) {
+			var fileName = "screenshot" + fileID++ + ".png";
+			var { imageData, width = displayWidth, height = displayHeight } = data.params;
+			var rawBuffer = Buffer.from(imageData, 'base64');
+			/* Raw buffer is vertically flipped (bottom-to-top) — reverse row order to correct */
+			var flipped = Buffer.alloc(rawBuffer.length);
+			var rowBytes = width * 4;
+			for (var y = 0; y < height; y++) {
+				rawBuffer.copy(flipped, (height - 1 - y) * rowBytes, y * rowBytes, (y + 1) * rowBytes);
+			}
+			var png = new PNG({ width, height });
+			flipped.copy(png.data);
+			fs.writeFile(fileName, PNG.sync.write(png), function(err) {
+				if (err) {
+					console.log("[fileError]: " + err);
+				} else {
+					console.log("[fileSuccess]: Screenshot saved as " + fileName + " (" + width + "x" + height + ")");
+				}
+			});
+		} else {
+			console.log("[thunderEvt]: " + JSON.stringify(data));
+		}
 	}
 };
 
